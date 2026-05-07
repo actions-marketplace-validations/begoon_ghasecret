@@ -1,12 +1,8 @@
 # ghasecret
 
-A GitHub Action that triple-base64-encodes secret values so they can be recovered from workflow logs.
+Occasionally you need to recover the plaintext of a value stored in GitHub Actions secrets — the original was never written down, the engineer who set it has moved on, or you are migrating to a different secrets store. The value can in principle be printed from inside a workflow, but the Actions runner automatically scans every log line for any registered secret (and, since 2024, for its single-base64 form too) and replaces matches with `***`, so a plain `echo "$MY_SECRET"` shows up redacted.
 
-## Why
-
-GitHub Actions automatically masks `secrets.*` values in logs as `***`, and also masks their single-base64 form. Sometimes — during incident response, key migration, or vendor handoffs — the owner of a repo legitimately needs to read a secret value out of GitHub.
-
-Triple-base64 is the smallest reliable obfuscation that bypasses the masker: the resulting blob shares no common substring with the raw secret or its single-base64 form, so the log filter does not match it. The blob can be pasted into a local terminal and decoded with three `base64 -d` invocations to recover the original.
+This action works around the masker by encoding the secret with `base64` three times before printing it. The triple-encoded blob shares no common substring with the original or its single-base64 form, so the log filter does not match it and the value appears in the run log verbatim. Pasting the printed `decode:` one-liner into a local shell runs `base64 -d` three times and recovers the original value.
 
 ## Usage
 
