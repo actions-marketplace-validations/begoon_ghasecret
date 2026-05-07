@@ -4,6 +4,22 @@ Occasionally you need to recover the plaintext of a value stored in GitHub Actio
 
 This action works around the masker by encoding the secret with `base64` three times before printing it. The triple-encoded blob shares no common substring with the original or its single-base64 form, so the log filter does not match it and the value appears in the run log verbatim. Pasting the printed `decode:` one-liner into a local shell runs `base64 -d` three times and recovers the original value.
 
+A run of the action on a secret with the value `sk-prod-7f9c2a4b` produces output along these lines:
+
+```text
+::group::secret
+name:    secret
+encoded: triple base64 (apply 'base64 -d' three times to recover)
+value:
+WXpKemRHTklTblphUXpBeldtcHNhazF0UlRCWlp6MDk=
+
+decode (copy this whole line into your terminal):
+echo 'WXpKemRHTklTblphUXpBeldtcHNhazF0UlRCWlp6MDk=' | base64 -d | base64 -d | base64 -d
+::endgroup::
+```
+
+Pasting that `echo ... | base64 -d | base64 -d | base64 -d` line into a local terminal prints `sk-prod-7f9c2a4b`.
+
 ## Usage
 
 ### A single secret
